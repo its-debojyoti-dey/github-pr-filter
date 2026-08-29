@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub PR Filter",
+  "version": "1.0.0",
+  "description": "Native PR filter bar and quick chips for GitHub repository pull requests.",
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*/pulls*"],
+      "js": ["assets/content.js"],
+      "css": ["assets/content.css"],
+      "run_at": "document_end"
+    }
+  ]
+}
