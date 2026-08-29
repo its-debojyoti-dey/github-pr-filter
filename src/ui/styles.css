@@ -1,0 +1,208 @@
+.gh-pr-filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.gh-pr-filter-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.gh-pr-filter-input-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  border: 1px solid var(--borderColor-default, #d0d7de);
+  border-radius: 6px;
+  background-color: var(--bgColor-default, #ffffff);
+  box-shadow: var(--shadow-resting-xsmall, inset 0 1px 0 rgba(208, 215, 222, 0.2));
+  transition: border-color 0.2s cubic-bezier(0.3, 0, 0.5, 1), box-shadow 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+  box-sizing: border-box;
+}
+
+.gh-pr-filter-input-wrapper:focus-within {
+  border-color: var(--fgColor-accent, #0969da);
+  box-shadow: inset 0 0 0 1px var(--fgColor-accent, #0969da);
+}
+
+.gh-pr-filter-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 10px;
+  color: var(--fgColor-muted, #656d76);
+  pointer-events: none;
+}
+
+.gh-pr-filter-input {
+  flex: 1;
+  padding: 5px 12px;
+  font-size: 14px;
+  line-height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--fgColor-default, #1f2328);
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.gh-pr-filter-input::placeholder {
+  color: var(--fgColor-muted, #656d76);
+}
+
+.gh-pr-filter-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  margin-right: 2px;
+  border: none;
+  background: transparent;
+  color: var(--fgColor-muted, #656d76);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.gh-pr-filter-clear-btn:hover {
+  color: var(--fgColor-danger, #d1242f);
+}
+
+.gh-pr-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid var(--borderColor-default, #d0d7de);
+  border-radius: 6px;
+  color: var(--fgColor-default, #1f2328);
+  background-color: var(--bgColor-muted, #f6f8fa);
+  transition: 80ms cubic-bezier(0.65, 0, 0.35, 1);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.gh-pr-filter-btn:hover {
+  background-color: var(--bgColor-neutral-muted, #eaeef2);
+  border-color: var(--borderColor-muted, #afb8c1);
+}
+
+.gh-pr-filter-btn-primary {
+  color: #ffffff;
+  background-color: var(--bgColor-success-emphasis, #1f883d);
+  border-color: var(--borderColor-success-emphasis, rgba(31, 35, 40, 0.15));
+}
+
+.gh-pr-filter-btn-primary:hover {
+  background-color: #1a7f37;
+}
+
+/* Chip Strip */
+.gh-pr-filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.gh-pr-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  border-radius: 100px;
+  border: 1px solid var(--borderColor-default, #d0d7de);
+  background-color: var(--bgColor-default, #ffffff);
+  color: var(--fgColor-default, #1f2328);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.gh-pr-chip:hover {
+  background-color: var(--bgColor-muted, #f6f8fa);
+  border-color: var(--borderColor-muted, #afb8c1);
+}
+
+.gh-pr-chip.active {
+  background-color: var(--bgColor-accent-muted, #ddf4ff);
+  border-color: var(--borderColor-accent-emphasis, #0969da);
+  color: var(--fgColor-accent, #0969da);
+  font-weight: 600;
+}
+
+/* Popover Menu */
+.gh-pr-popover {
+  position: absolute;
+  top: 100%;
+  right: 76px;
+  margin-top: 4px;
+  width: 260px;
+  background-color: var(--bgColor-default, #ffffff);
+  border: 1px solid var(--borderColor-default, #d0d7de);
+  border-radius: 8px;
+  box-shadow: var(--shadow-floating-large, 0 8px 24px rgba(140, 149, 159, 0.2));
+  z-index: 999;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gh-pr-popover.open {
+  display: flex;
+}
+
+.gh-pr-popover-header {
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--fgColor-muted, #656d76);
+  background-color: var(--bgColor-muted, #f6f8fa);
+  border-bottom: 1px solid var(--borderColor-muted, #d8dee4);
+}
+
+.gh-pr-popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--fgColor-default, #1f2328);
+  border-bottom: 1px solid var(--borderColor-subtle, #f0f2f5);
+  transition: background-color 0.1s ease;
+}
+
+.gh-pr-popover-item:last-child {
+  border-bottom: none;
+}
+
+.gh-pr-popover-item:hover {
+  background-color: var(--bgColor-muted, #f6f8fa);
+  color: var(--fgColor-accent, #0969da);
+}
