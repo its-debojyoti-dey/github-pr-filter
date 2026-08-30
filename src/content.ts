@@ -33,20 +33,39 @@ function applyQuery(query: string) {
   window.location.href = newUrl;
 }
 
+function findTarget(): HTMLElement | null {
+  const formOrSubnav = document.querySelector<HTMLElement>(
+    '.subnav-search, form[action$="/pulls"], [data-target="search-input.input"]'
+  );
+  if (formOrSubnav) return formOrSubnav;
+
+  // Fallback: locate native issues search input and find its parent form or wrapper
+  const searchInput = document.querySelector<HTMLInputElement>('input#js-issues-search, input[name="q"]');
+  if (searchInput) {
+    return searchInput.closest('form') || searchInput.parentElement;
+  }
+
+  return null;
+}
+
 function mount() {
   if (!isPullRequestsPage()) return;
 
-  // Target GitHub subnav search container
-  const target = document.querySelector<HTMLElement>(
-    '.subnav-search, form[action$="/pulls"], [data-target="search-input.input"]'
-  );
+  const target = findTarget();
   if (!target) return;
 
   const parentContainer = target.parentElement;
   if (!parentContainer) return;
 
-  // Check for existing mount
-  if (parentContainer.querySelector(`[${MOUNTED_ATTR}]`)) {
+  const existing = parentContainer.querySelector<HTMLElement>(`[${MOUNTED_ATTR}]`);
+  if (existing) {
+    // If already mounted, ensure query in input matches current URL query
+    const urlQuery = getQueryFromURL();
+    const input = existing.querySelector<HTMLInputElement>('.gh-pr-filter-input');
+    if (input && input.value !== urlQuery) {
+      input.value = urlQuery;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
     return;
   }
 
@@ -61,6 +80,7 @@ function mount() {
   // Hide the native input container and insert the custom filter component
   target.style.display = 'none';
   parentContainer.insertBefore(filterBar, target);
+  console.log('[GitHub PR Filter] Filter bar mounted successfully.');
 }
 
 // Initial mount
@@ -74,3 +94,21 @@ if (document.readyState === 'loading') {
 document.addEventListener('turbo:render', mount);
 document.addEventListener('turbo:load', mount);
 window.addEventListener('popstate', mount);
+
+// MutationObserver to catch asynchronous React/Turbo hydration
+let observerDebounceTimer: number | null = null;
+const observer = new MutationObserver(() => {
+  if (!isPullRequestsPage()) return;
+  if (observerDebounceTimer !== null) {
+    window.clearTimeout(observerDebounceTimer);
+  }
+  observerDebounceTimer = window.setTimeout(() => {
+    mount();
+  }, 50);
+});
+
+observer.observe(document.documentElement, {
+  childList: true,
+  subtree: true,
+});
+
