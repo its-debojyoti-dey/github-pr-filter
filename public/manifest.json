@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GitHub PR Filter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native PR filter bar and quick chips for GitHub repository pull requests.",
   "icons": {
     "16": "icons/icon-16.png",
