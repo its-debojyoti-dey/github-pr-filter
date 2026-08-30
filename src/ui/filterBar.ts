@@ -118,8 +118,8 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
   applyBtn.className = 'gh-pr-filter-btn gh-pr-filter-btn-primary';
   applyBtn.innerText = 'Apply';
 
-  topBar.appendChild(inputWrapper);
   topBar.appendChild(filterBtn);
+  topBar.appendChild(inputWrapper);
   topBar.appendChild(applyBtn);
   topBar.appendChild(popover);
 

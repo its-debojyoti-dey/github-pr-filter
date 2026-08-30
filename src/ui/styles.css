@@ -160,7 +160,7 @@
 .gh-pr-popover {
   position: absolute;
   top: 100%;
-  right: 76px;
+  left: 0;
   margin-top: 4px;
   width: 260px;
   background-color: var(--bgColor-default, #ffffff);

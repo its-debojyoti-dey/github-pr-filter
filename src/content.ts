@@ -66,6 +66,13 @@ function mount() {
       input.value = urlQuery;
       input.dispatchEvent(new Event('input', { bubbles: true }));
     }
+    // Ensure native elements stay hidden on dynamic Turbo re-renders
+    target.style.setProperty('display', 'none', 'important');
+    parentContainer.querySelectorAll<HTMLElement>('.subnav-search-context, [data-target="subnav-search-context"], details.details-reset').forEach((d) => {
+      if (d.querySelector('summary')?.textContent?.trim().startsWith('Filters') || d.classList.contains('subnav-search-context')) {
+        d.style.setProperty('display', 'none', 'important');
+      }
+    });
     return;
   }
 
@@ -77,8 +84,17 @@ function mount() {
 
   filterBar.setAttribute(MOUNTED_ATTR, 'true');
 
-  // Hide the native input container and insert the custom filter component
-  target.style.display = 'none';
+  // Hide the native input container and any native Filters dropdown with !important
+  target.style.setProperty('display', 'none', 'important');
+  parentContainer.querySelectorAll<HTMLElement>('.subnav-search-context, [data-target="subnav-search-context"], details.details-reset').forEach((d) => {
+    if (d.querySelector('summary')?.textContent?.trim().startsWith('Filters') || d.classList.contains('subnav-search-context')) {
+      d.style.setProperty('display', 'none', 'important');
+    }
+  });
+  parentContainer.querySelectorAll<HTMLElement>('form.subnav-search, form[action$="/pulls"]').forEach((f) => {
+    f.style.setProperty('display', 'none', 'important');
+  });
+
   parentContainer.insertBefore(filterBar, target);
   console.log('[GitHub PR Filter] Filter bar mounted successfully.');
 }
