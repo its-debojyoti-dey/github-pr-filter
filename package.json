@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "package": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath github-pr-filter-v1.0.0.zip -Force"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.306",
