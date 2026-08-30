@@ -32,6 +32,7 @@
   display: flex;
   align-items: center;
   flex: 1;
+  min-width: 0;
   position: relative;
   border: 1px solid var(--borderColor-default, #d0d7de);
   border-radius: 6px;
@@ -53,10 +54,12 @@
   padding-left: 10px;
   color: var(--fgColor-muted, #656d76);
   pointer-events: none;
+  flex-shrink: 0;
 }
 
 .gh-pr-filter-input {
   flex: 1;
+  min-width: 0;
   padding: 5px 12px;
   font-size: 14px;
   line-height: 20px;
@@ -84,6 +87,7 @@
   cursor: pointer;
   border-radius: 4px;
   transition: color 0.15s ease;
+  flex-shrink: 0;
 }
 
 .gh-pr-filter-clear-btn:hover {
@@ -110,6 +114,7 @@
   transition: 80ms cubic-bezier(0.65, 0, 0.35, 1);
   font-family: inherit;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .gh-pr-filter-btn:hover {
@@ -133,8 +138,15 @@
   align-items: center;
   gap: 6px;
   overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
   padding-bottom: 2px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gh-pr-filter-chips::-webkit-scrollbar {
+  display: none;
 }
 
 .gh-pr-chip {
@@ -153,6 +165,7 @@
   white-space: nowrap;
   font-family: inherit;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .gh-pr-chip:hover {
@@ -174,6 +187,7 @@
   left: 0;
   margin-top: 4px;
   width: 260px;
+  max-width: calc(100vw - 32px);
   background-color: var(--bgColor-default, #ffffff);
   border: 1px solid var(--borderColor-default, #d0d7de);
   border-radius: 8px;
@@ -217,4 +231,26 @@
 .gh-pr-popover-item:hover {
   background-color: var(--bgColor-neutral-muted, rgba(110, 118, 129, 0.15));
   color: var(--fgColor-accent, #58a6ff);
+}
+
+/* Responsive adjustments for mobile screens */
+@media (max-width: 544px) {
+  .gh-pr-filter-top-bar {
+    gap: 6px;
+  }
+
+  .gh-pr-filter-btn {
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+
+  .gh-pr-filter-input {
+    padding: 5px 6px;
+    font-size: 13px;
+  }
+
+  .gh-pr-chip {
+    padding: 2px 8px;
+    font-size: 11px;
+  }
 }
