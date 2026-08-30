@@ -102,6 +102,15 @@ function hideNativeElements(parent: HTMLElement, target?: HTMLElement) {
   if (sibling) {
     sibling.style.setProperty('align-self', 'flex-start', 'important');
   }
+
+  // Fix New pull request button alignment to top row
+  const rowContainer = parent.closest<HTMLElement>('.d-flex.flex-justify-between, .flex-items-end');
+  if (rowContainer) {
+    rowContainer.style.setProperty('align-items', 'flex-start', 'important');
+    rowContainer.querySelectorAll<HTMLElement>('.ml-2.d-flex, .d-flex.ml-auto, a[href$="/pulls/new"], a[href*="/compare"]').forEach((el) => {
+      el.style.setProperty('align-self', 'flex-start', 'important');
+    });
+  }
 }
 
 function mount() {

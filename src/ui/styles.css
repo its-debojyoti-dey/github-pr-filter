@@ -8,6 +8,17 @@
   box-sizing: border-box;
 }
 
+/* Align the entire header row to top so New pull request button does not drop to bottom */
+.flex-items-end:has(.gh-pr-filter-container) {
+  align-items: flex-start !important;
+}
+
+.flex-items-end:has(.gh-pr-filter-container) .ml-2.d-flex,
+.flex-items-end:has(.gh-pr-filter-container) a[href$="/pulls/new"],
+.flex-items-end:has(.gh-pr-filter-container) a[href*="/compare"] {
+  align-self: flex-start !important;
+}
+
 .gh-pr-filter-top-bar {
   display: flex;
   align-items: center;
