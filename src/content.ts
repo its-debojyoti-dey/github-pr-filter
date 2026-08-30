@@ -7,21 +7,56 @@ function isPullRequestsPage(): boolean {
   return /^\/[^/]+\/[^/]+\/pulls(\/.*)?$/.test(window.location.pathname);
 }
 
-function getQueryFromURL(): string {
+function getBasePullsPath(): string {
+  const match = window.location.pathname.match(/^(\/[^/]+\/[^/]+\/pulls)/);
+  return match ? match[1] : window.location.pathname;
+}
+
+function getCurrentQuery(): string {
+  // 1. Check URL query parameter ?q=...
   const params = new URLSearchParams(window.location.search);
-  return params.get('q') || 'is:pr is:open';
+  const qParam = params.get('q');
+  if (qParam && qParam.trim()) {
+    return qParam.trim();
+  }
+
+  // 2. Check native GitHub search input value (populated for path shortcuts like /pulls/review-requested/@me or /pulls/@me)
+  const nativeInput = document.querySelector<HTMLInputElement>(
+    'input#js-issues-search, form.subnav-search input[name="q"], input[name="q"]'
+  );
+  if (nativeInput && nativeInput.value && nativeInput.value.trim()) {
+    return nativeInput.value.trim();
+  }
+
+  // 3. Fallback to path shortcuts if native input is not yet populated
+  const pathname = window.location.pathname;
+  if (pathname.includes('/pulls/review-requested/@me')) {
+    return 'is:open is:pr review-requested:@me';
+  }
+  if (pathname.endsWith('/pulls/@me') || pathname.includes('/pulls/created_by/@me')) {
+    return 'is:open is:pr author:@me';
+  }
+  if (pathname.includes('/pulls/mentioned/@me')) {
+    return 'is:open is:pr mentions:@me';
+  }
+
+  return 'is:pr is:open';
 }
 
 function applyQuery(query: string) {
-  const currentParams = new URLSearchParams(window.location.search);
-  currentParams.set('q', query);
-  const newUrl = `${window.location.pathname}?${currentParams.toString()}`;
+  const basePath = getBasePullsPath();
+  const searchParams = new URLSearchParams();
+  searchParams.set('q', query);
+  const targetUrl = `${basePath}?${searchParams.toString()}`;
 
   // Find native GitHub form if available and submit via Turbo
-  const nativeInput = document.querySelector<HTMLInputElement>('input[name="q"]');
+  const nativeInput = document.querySelector<HTMLInputElement>(
+    'input#js-issues-search, form.subnav-search input[name="q"], input[name="q"]'
+  );
   const nativeForm = nativeInput?.closest('form');
 
   if (nativeInput && nativeForm) {
+    nativeForm.action = basePath;
     nativeInput.value = query;
     if (typeof nativeForm.requestSubmit === 'function') {
       nativeForm.requestSubmit();
@@ -30,7 +65,7 @@ function applyQuery(query: string) {
   }
 
   // Fallback to window.location navigation
-  window.location.href = newUrl;
+  window.location.href = targetUrl;
 }
 
 function findTarget(): HTMLElement | null {
@@ -86,7 +121,7 @@ function mount() {
     return;
   }
 
-  const query = getQueryFromURL();
+  const query = getCurrentQuery();
   const filterBar = renderFilterBar({
     initialQuery: query,
     onApply: applyQuery,
@@ -105,9 +140,9 @@ function onUrlNavigation() {
   const input = existing.querySelector<HTMLInputElement>('.gh-pr-filter-input');
   // Only sync from URL if user is not actively typing in the input
   if (input && document.activeElement !== input) {
-    const urlQuery = getQueryFromURL();
-    if (input.value !== urlQuery) {
-      input.value = urlQuery;
+    const currentQ = getCurrentQuery();
+    if (input.value.trim() !== currentQ.trim()) {
+      input.value = currentQ;
       input.dispatchEvent(new Event('input', { bubbles: true }));
     }
   }
