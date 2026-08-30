@@ -48,6 +48,27 @@ function findTarget(): HTMLElement | null {
   return null;
 }
 
+function hideNativeElements(parent: HTMLElement, target?: HTMLElement) {
+  if (target) {
+    target.style.setProperty('display', 'none', 'important');
+  }
+  parent.querySelectorAll<HTMLElement>('.subnav-search-context, [data-target="subnav-search-context"], details.details-reset').forEach((d) => {
+    if (d.querySelector('summary')?.textContent?.trim().startsWith('Filters') || d.classList.contains('subnav-search-context')) {
+      d.style.setProperty('display', 'none', 'important');
+    }
+  });
+  parent.querySelectorAll<HTMLElement>('form.subnav-search, form[action$="/pulls"]').forEach((f) => {
+    f.style.setProperty('display', 'none', 'important');
+  });
+
+  // Fix Labels and Milestones button stretching vertically
+  parent.style.setProperty('align-items', 'flex-start', 'important');
+  const sibling = parent.querySelector<HTMLElement>('.ml-2.pl-2, [data-target="labels-milestones"]');
+  if (sibling) {
+    sibling.style.setProperty('align-self', 'flex-start', 'important');
+  }
+}
+
 function mount() {
   if (!isPullRequestsPage()) return;
 
@@ -57,22 +78,11 @@ function mount() {
   const parentContainer = target.parentElement;
   if (!parentContainer) return;
 
+  hideNativeElements(parentContainer, target);
+
+  // If already mounted, do NOT touch input.value or reset user input
   const existing = parentContainer.querySelector<HTMLElement>(`[${MOUNTED_ATTR}]`);
   if (existing) {
-    // If already mounted, ensure query in input matches current URL query
-    const urlQuery = getQueryFromURL();
-    const input = existing.querySelector<HTMLInputElement>('.gh-pr-filter-input');
-    if (input && input.value !== urlQuery) {
-      input.value = urlQuery;
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    // Ensure native elements stay hidden on dynamic Turbo re-renders
-    target.style.setProperty('display', 'none', 'important');
-    parentContainer.querySelectorAll<HTMLElement>('.subnav-search-context, [data-target="subnav-search-context"], details.details-reset').forEach((d) => {
-      if (d.querySelector('summary')?.textContent?.trim().startsWith('Filters') || d.classList.contains('subnav-search-context')) {
-        d.style.setProperty('display', 'none', 'important');
-      }
-    });
     return;
   }
 
@@ -83,20 +93,24 @@ function mount() {
   });
 
   filterBar.setAttribute(MOUNTED_ATTR, 'true');
-
-  // Hide the native input container and any native Filters dropdown with !important
-  target.style.setProperty('display', 'none', 'important');
-  parentContainer.querySelectorAll<HTMLElement>('.subnav-search-context, [data-target="subnav-search-context"], details.details-reset').forEach((d) => {
-    if (d.querySelector('summary')?.textContent?.trim().startsWith('Filters') || d.classList.contains('subnav-search-context')) {
-      d.style.setProperty('display', 'none', 'important');
-    }
-  });
-  parentContainer.querySelectorAll<HTMLElement>('form.subnav-search, form[action$="/pulls"]').forEach((f) => {
-    f.style.setProperty('display', 'none', 'important');
-  });
-
   parentContainer.insertBefore(filterBar, target);
   console.log('[GitHub PR Filter] Filter bar mounted successfully.');
+}
+
+function onUrlNavigation() {
+  if (!isPullRequestsPage()) return;
+  mount();
+  const existing = document.querySelector<HTMLElement>(`[${MOUNTED_ATTR}]`);
+  if (!existing) return;
+  const input = existing.querySelector<HTMLInputElement>('.gh-pr-filter-input');
+  // Only sync from URL if user is not actively typing in the input
+  if (input && document.activeElement !== input) {
+    const urlQuery = getQueryFromURL();
+    if (input.value !== urlQuery) {
+      input.value = urlQuery;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
 }
 
 // Initial mount
@@ -108,10 +122,10 @@ if (document.readyState === 'loading') {
 
 // GitHub Turbo / PJAX lifecycle listeners
 document.addEventListener('turbo:render', mount);
-document.addEventListener('turbo:load', mount);
-window.addEventListener('popstate', mount);
+document.addEventListener('turbo:load', onUrlNavigation);
+window.addEventListener('popstate', onUrlNavigation);
 
-// MutationObserver to catch asynchronous React/Turbo hydration
+// MutationObserver ONLY ensures the component is mounted if React/Turbo swaps the DOM
 let observerDebounceTimer: number | null = null;
 const observer = new MutationObserver(() => {
   if (!isPullRequestsPage()) return;

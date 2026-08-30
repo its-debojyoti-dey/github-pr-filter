@@ -181,28 +181,29 @@
   padding: 8px 12px;
   font-weight: 600;
   font-size: 12px;
-  color: var(--fgColor-muted, #656d76);
-  background-color: var(--bgColor-muted, #f6f8fa);
-  border-bottom: 1px solid var(--borderColor-muted, #d8dee4);
+  color: var(--fgColor-muted, #8b949e);
+  background-color: var(--bgColor-muted, rgba(110, 118, 129, 0.1));
+  border-bottom: 1px solid var(--borderColor-muted, rgba(128, 128, 128, 0.25));
+  border-top: 1px solid var(--borderColor-muted, rgba(128, 128, 128, 0.25));
+}
+
+.gh-pr-popover-header:first-child {
+  border-top: none;
 }
 
 .gh-pr-popover-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 7px 12px;
   font-size: 13px;
   cursor: pointer;
-  color: var(--fgColor-default, #1f2328);
-  border-bottom: 1px solid var(--borderColor-subtle, #f0f2f5);
+  color: var(--fgColor-default, #c9d1d9);
+  border-bottom: none;
   transition: background-color 0.1s ease;
 }
 
-.gh-pr-popover-item:last-child {
-  border-bottom: none;
-}
-
 .gh-pr-popover-item:hover {
-  background-color: var(--bgColor-muted, #f6f8fa);
-  color: var(--fgColor-accent, #0969da);
+  background-color: var(--bgColor-neutral-muted, rgba(110, 118, 129, 0.15));
+  color: var(--fgColor-accent, #58a6ff);
 }

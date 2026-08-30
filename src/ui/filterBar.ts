@@ -87,8 +87,10 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
 
         row.addEventListener('click', (e) => {
           e.stopPropagation();
+          currentQuery = input.value;
           const tokens = parseQuery(currentQuery);
-          if (isActive) {
+          const activeNow = currentQuery.includes(item.token);
+          if (activeNow) {
             // Remove token
             const filtered = tokens.filter((t) => t.raw !== item.token);
             currentQuery = serializeQuery(filtered);
@@ -132,10 +134,10 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
     PRESETS.forEach((preset) => {
       const chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = 'gh-pr-chip' + (isPresetActive(currentQuery, preset.id) ? ' active' : '');
+      chip.className = 'gh-pr-chip' + (isPresetActive(input.value, preset.id) ? ' active' : '');
       chip.innerText = preset.label;
       chip.addEventListener('click', () => {
-        currentQuery = togglePreset(currentQuery, preset.id);
+        currentQuery = togglePreset(input.value, preset.id);
         input.value = currentQuery;
         updateChips();
         renderPopoverItems();
@@ -168,6 +170,7 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
   input.addEventListener('input', () => {
     currentQuery = input.value;
     updateChips();
+    renderPopoverItems();
   });
 
   // Popover toggle
