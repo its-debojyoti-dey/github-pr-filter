@@ -254,3 +254,157 @@
     font-size: 11px;
   }
 }
+
+/* Custom Saved Filter Chips & Management */
+.gh-pr-chip-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 6px;
+}
+
+.gh-pr-chip-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--fgColor-muted, #656d76);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+  opacity: 0.6;
+  transition: all 0.15s ease;
+}
+
+.gh-pr-chip-custom:hover .gh-pr-chip-delete {
+  opacity: 1;
+}
+
+.gh-pr-chip-delete:hover {
+  background-color: var(--bgColor-danger-muted, #ffebe9);
+  color: var(--fgColor-danger, #cf222e);
+}
+
+.gh-pr-chip-save {
+  border-style: dashed;
+  color: var(--fgColor-accent, #0969da);
+  border-color: var(--borderColor-accent-muted, rgba(9, 105, 218, 0.4));
+  background-color: var(--bgColor-accent-muted, rgba(9, 105, 218, 0.05));
+  gap: 4px;
+}
+
+.gh-pr-chip-save:hover {
+  border-style: solid;
+  border-color: var(--borderColor-accent-emphasis, #0969da);
+  background-color: var(--bgColor-accent-muted, rgba(9, 105, 218, 0.12));
+}
+
+/* Save Filter Modal / Dialog */
+.gh-pr-dialog-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gh-pr-save-dialog {
+  background-color: var(--bgColor-default, #ffffff);
+  border: 1px solid var(--borderColor-default, #d0d7de);
+  border-radius: 12px;
+  box-shadow: var(--shadow-floating-large, 0 12px 28px rgba(0, 0, 0, 0.28));
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  font-family: inherit;
+  animation: ghPrFadeIn 0.15s ease-out;
+}
+
+@keyframes ghPrFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.gh-pr-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fgColor-default, #1f2328);
+}
+
+.gh-pr-dialog-close {
+  border: none;
+  background: transparent;
+  color: var(--fgColor-muted, #656d76);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.gh-pr-dialog-close:hover {
+  color: var(--fgColor-default, #1f2328);
+}
+
+.gh-pr-dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gh-pr-dialog-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fgColor-default, #1f2328);
+}
+
+.gh-pr-dialog-input {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 1px solid var(--borderColor-default, #d0d7de);
+  border-radius: 6px;
+  background-color: var(--bgColor-default, #ffffff);
+  color: var(--fgColor-default, #1f2328);
+  outline: none;
+  font-family: inherit;
+}
+
+.gh-pr-dialog-input:focus {
+  border-color: var(--fgColor-accent, #0969da);
+  box-shadow: inset 0 0 0 1px var(--fgColor-accent, #0969da);
+}
+
+.gh-pr-dialog-query-preview {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  padding: 8px 12px;
+  background-color: var(--bgColor-muted, #f6f8fa);
+  border: 1px solid var(--borderColor-muted, #d0d7de);
+  border-radius: 6px;
+  color: var(--fgColor-muted, #656d76);
+  word-break: break-all;
+}
+
+.gh-pr-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}

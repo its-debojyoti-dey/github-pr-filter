@@ -57,22 +57,35 @@ function tokenMatches(a: QueryToken, b: QueryToken): boolean {
   return true;
 }
 
-export function isPresetActive(queryStr: string, presetId: string): boolean {
-  const preset = PRESETS.find((p) => p.id === presetId);
+export function isPresetActive(
+  queryStr: string,
+  presetOrId: string | PresetDefinition,
+  allPresets: PresetDefinition[] = PRESETS
+): boolean {
+  const preset = typeof presetOrId === 'string'
+    ? allPresets.find((p) => p.id === presetOrId)
+    : presetOrId;
   if (!preset) return false;
 
   const currentTokens = parseQuery(queryStr);
+  if (preset.tokens.length === 0) return false;
   return preset.tokens.every((pToken) =>
     currentTokens.some((cToken) => tokenMatches(cToken, pToken))
   );
 }
 
-export function togglePreset(queryStr: string, presetId: string): string {
-  const preset = PRESETS.find((p) => p.id === presetId);
+export function togglePreset(
+  queryStr: string,
+  presetOrId: string | PresetDefinition,
+  allPresets: PresetDefinition[] = PRESETS
+): string {
+  const preset = typeof presetOrId === 'string'
+    ? allPresets.find((p) => p.id === presetOrId)
+    : presetOrId;
   if (!preset) return queryStr;
 
   const currentTokens = parseQuery(queryStr);
-  const active = isPresetActive(queryStr, presetId);
+  const active = isPresetActive(queryStr, preset, allPresets);
 
   if (active) {
     // Remove preset tokens

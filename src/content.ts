@@ -145,7 +145,7 @@ function mount() {
 
   hideNativeElements(parentContainer, target);
 
-  // If already mounted, do NOT touch input.value or reset user input
+  // If already mounted, do NOT re-mount or touch DOM to prevent mutation loops
   const existing = parentContainer.querySelector<HTMLElement>(`[${MOUNTED_ATTR}]`);
   if (existing) {
     return;

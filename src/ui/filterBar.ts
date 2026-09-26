@@ -2,6 +2,8 @@ import { ICONS } from './icons';
 import { PRESETS, togglePreset, isPresetActive } from '../query/presets';
 import { parseQuery } from '../query/tokenizer';
 import { serializeQuery } from '../query/serializer';
+import { PresetDefinition } from '../query/types';
+import { getCustomPresets, saveCustomPreset, deleteCustomPreset } from '../storage/customPresets';
 
 export interface FilterBarOptions {
   initialQuery: string;
@@ -10,6 +12,7 @@ export interface FilterBarOptions {
 
 export function renderFilterBar(options: FilterBarOptions): HTMLElement {
   let currentQuery = options.initialQuery || 'is:pr is:open';
+  let customPresets: PresetDefinition[] = [];
 
   const container = document.createElement('div');
   container.className = 'gh-pr-filter-container';
@@ -67,6 +70,10 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
     { label: 'Checks Pending', token: 'status:pending' },
   ];
 
+  function getAllPresets(): PresetDefinition[] {
+    return [...PRESETS, ...customPresets];
+  }
+
   function renderPopoverItems() {
     popover.innerHTML = '';
     filterOptions.forEach((item) => {
@@ -77,6 +84,7 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
         popover.appendChild(header);
       } else if (item.token) {
         const row = document.createElement('div');
+        row.className = 'gh-pr-popover-item';
         const parsedItem = parseQuery(item.token)[0];
         const parsedRemove = item.removeToken ? parseQuery(item.removeToken)[0] : null;
 
@@ -155,13 +163,16 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
 
   function updateChips() {
     chipStrip.innerHTML = '';
+    const allPresets = getAllPresets();
+
+    // 1. Built-in presets
     PRESETS.forEach((preset) => {
       const chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = 'gh-pr-chip' + (isPresetActive(input.value, preset.id) ? ' active' : '');
+      chip.className = 'gh-pr-chip' + (isPresetActive(input.value, preset, allPresets) ? ' active' : '');
       chip.innerText = preset.label;
       chip.addEventListener('click', () => {
-        currentQuery = togglePreset(input.value, preset.id);
+        currentQuery = togglePreset(input.value, preset, allPresets);
         input.value = currentQuery;
         updateChips();
         renderPopoverItems();
@@ -169,7 +180,123 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
       });
       chipStrip.appendChild(chip);
     });
+
+    // 2. Custom saved presets
+    customPresets.forEach((preset) => {
+      const chip = document.createElement('div');
+      chip.className = 'gh-pr-chip gh-pr-chip-custom' + (isPresetActive(input.value, preset, allPresets) ? ' active' : '');
+      
+      const labelSpan = document.createElement('span');
+      labelSpan.innerText = preset.label;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'gh-pr-chip-delete';
+      deleteBtn.title = `Delete "${preset.label}" filter`;
+      deleteBtn.innerHTML = ICONS.x;
+
+      deleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await deleteCustomPreset(preset.id);
+        customPresets = customPresets.filter((p) => p.id !== preset.id);
+        updateChips();
+      });
+
+      chip.appendChild(labelSpan);
+      chip.appendChild(deleteBtn);
+
+      chip.addEventListener('click', () => {
+        currentQuery = togglePreset(input.value, preset, allPresets);
+        input.value = currentQuery;
+        updateChips();
+        renderPopoverItems();
+        options.onApply(currentQuery);
+      });
+
+      chipStrip.appendChild(chip);
+    });
+
+    // 3. "+ Save Filter" button
+    const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.className = 'gh-pr-chip gh-pr-chip-save';
+    saveBtn.innerHTML = `${ICONS.plus} <span>Save Filter</span>`;
+    saveBtn.title = 'Save current filter query as a custom preset';
+    saveBtn.addEventListener('click', () => {
+      openSaveDialog(input.value);
+    });
+    chipStrip.appendChild(saveBtn);
   }
+
+  // --- Save Filter Modal Dialog ---
+  function openSaveDialog(queryToSave: string) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'gh-pr-dialog-backdrop';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'gh-pr-save-dialog';
+
+    dialog.innerHTML = `
+      <div class="gh-pr-dialog-header">
+        <span>Save Filter Preset</span>
+        <button type="button" class="gh-pr-dialog-close" title="Close">${ICONS.x}</button>
+      </div>
+      <div class="gh-pr-dialog-field">
+        <label class="gh-pr-dialog-label" for="gh-pr-preset-name-input">Filter Name</label>
+        <input type="text" id="gh-pr-preset-name-input" class="gh-pr-dialog-input" placeholder="e.g. Frontend Team, Hotfixes, Ready for QA" maxlength="40" autocomplete="off" />
+      </div>
+      <div class="gh-pr-dialog-field">
+        <label class="gh-pr-dialog-label">Filter Query</label>
+        <div class="gh-pr-dialog-query-preview">${queryToSave || 'is:pr is:open'}</div>
+      </div>
+      <div class="gh-pr-dialog-actions">
+        <button type="button" class="gh-pr-filter-btn gh-pr-dialog-cancel">Cancel</button>
+        <button type="button" class="gh-pr-filter-btn gh-pr-filter-btn-primary gh-pr-dialog-save">Save Filter</button>
+      </div>
+    `;
+
+    function closeDialog() {
+      document.removeEventListener('keydown', handleKeyDown);
+      backdrop.remove();
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        closeDialog();
+      } else if (e.key === 'Enter' && (e.target as HTMLElement).id === 'gh-pr-preset-name-input') {
+        saveAction();
+      }
+    }
+
+    async function saveAction() {
+      const nameInput = dialog.querySelector<HTMLInputElement>('#gh-pr-preset-name-input');
+      const name = nameInput?.value.trim() || 'Custom Filter';
+      const newPreset = await saveCustomPreset(name, queryToSave || 'is:pr is:open');
+      customPresets.push(newPreset);
+      closeDialog();
+      updateChips();
+    }
+
+    dialog.querySelector('.gh-pr-dialog-close')?.addEventListener('click', closeDialog);
+    dialog.querySelector('.gh-pr-dialog-cancel')?.addEventListener('click', closeDialog);
+    dialog.querySelector('.gh-pr-dialog-save')?.addEventListener('click', saveAction);
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) closeDialog();
+    });
+
+    document.addEventListener('keydown', handleKeyDown);
+    backdrop.appendChild(dialog);
+    document.body.appendChild(backdrop);
+
+    const nameInput = dialog.querySelector<HTMLInputElement>('#gh-pr-preset-name-input');
+    nameInput?.focus();
+  }
+
+  // Load custom presets asynchronously
+  getCustomPresets().then((presets) => {
+    customPresets = presets;
+    updateChips();
+  });
 
   updateChips();
   renderPopoverItems();

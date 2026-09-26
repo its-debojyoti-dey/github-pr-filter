@@ -9,4 +9,6 @@ export interface PresetDefinition {
   id: string;
   label: string;
   tokens: QueryToken[];
+  rawQuery?: string;
+  isCustom?: boolean;
 }
