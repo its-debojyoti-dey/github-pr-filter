@@ -20,9 +20,9 @@ function getCurrentQuery(): string {
     return qParam.trim();
   }
 
-  // 2. Check native GitHub search input value (populated for path shortcuts like /pulls/review-requested/@me or /pulls/@me)
+  // 2. Check native GitHub search input value (handles React dashboard & classic subnav)
   const nativeInput = document.querySelector<HTMLInputElement>(
-    'input#js-issues-search, form.subnav-search input[name="q"], input[name="q"]'
+    '#repo-pulls-dashboard-filter-input, input#js-issues-search, form.subnav-search input[name="q"], input[name="q"]'
   );
   if (nativeInput && nativeInput.value && nativeInput.value.trim()) {
     return nativeInput.value.trim();
@@ -49,9 +49,9 @@ function applyQuery(query: string) {
   searchParams.set('q', query);
   const targetUrl = `${basePath}?${searchParams.toString()}`;
 
-  // Find native GitHub form if available and submit via Turbo
+  // Find native GitHub form if available (classic UI) and submit via Turbo
   const nativeInput = document.querySelector<HTMLInputElement>(
-    'input#js-issues-search, form.subnav-search input[name="q"], input[name="q"]'
+    'input#js-issues-search, form.subnav-search input[name="q"]'
   );
   const nativeForm = nativeInput?.closest('form');
 
@@ -64,20 +64,32 @@ function applyQuery(query: string) {
     }
   }
 
-  // Fallback to window.location navigation
+  // For React dashboard or fallback: navigate directly
   window.location.href = targetUrl;
 }
 
 function findTarget(): HTMLElement | null {
+  // 1. React Dashboard filter container
+  const dashboardFilter = document.querySelector<HTMLElement>(
+    '#repo-pulls-dashboard-filter, [data-target="repo-pulls-dashboard-filter"], .Filter-module__Box_1__TxjFb'
+  );
+  if (dashboardFilter) return dashboardFilter;
+
+  // 2. Classic subnav search container
   const formOrSubnav = document.querySelector<HTMLElement>(
     '.subnav-search, form[action$="/pulls"], [data-target="search-input.input"]'
   );
   if (formOrSubnav) return formOrSubnav;
 
-  // Fallback: locate native issues search input and find its parent form or wrapper
-  const searchInput = document.querySelector<HTMLInputElement>('input#js-issues-search, input[name="q"]');
+  // 3. Fallback: locate native search input and find its parent container
+  const searchInput = document.querySelector<HTMLInputElement>(
+    '#repo-pulls-dashboard-filter-input, input#js-issues-search, input[name="q"]'
+  );
   if (searchInput) {
-    return searchInput.closest('form') || searchInput.parentElement;
+    return searchInput.closest('#repo-pulls-dashboard-filter') ||
+           searchInput.closest('.styled-input-container') ||
+           searchInput.closest('form') ||
+           searchInput.parentElement;
   }
 
   return null;
@@ -87,11 +99,20 @@ function hideNativeElements(parent: HTMLElement, target?: HTMLElement) {
   if (target) {
     target.style.setProperty('display', 'none', 'important');
   }
+
+  // Hide React dashboard filter if present
+  document.querySelectorAll<HTMLElement>('#repo-pulls-dashboard-filter, .Filter-module__Box_1__TxjFb').forEach((el) => {
+    el.style.setProperty('display', 'none', 'important');
+  });
+
+  // Hide classic subnav context menu
   parent.querySelectorAll<HTMLElement>('.subnav-search-context, [data-target="subnav-search-context"], details.details-reset').forEach((d) => {
     if (d.querySelector('summary')?.textContent?.trim().startsWith('Filters') || d.classList.contains('subnav-search-context')) {
       d.style.setProperty('display', 'none', 'important');
     }
   });
+
+  // Hide classic search forms
   parent.querySelectorAll<HTMLElement>('form.subnav-search, form[action$="/pulls"]').forEach((f) => {
     f.style.setProperty('display', 'none', 'important');
   });

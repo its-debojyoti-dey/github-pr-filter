@@ -63,4 +63,36 @@ describe('Presets and Toggling', () => {
     const updated = togglePreset(initial, 'drafts');
     expect(updated).toContain('draft:true');
   });
+
+  it('recognizes state:open synonymously with is:open for presets', () => {
+    const query = 'is:pr state:open review-requested:@me';
+    expect(isPresetActive(query, 'needs-my-review')).toBe(true);
+    const myPrsQuery = 'is:pr state:open author:@me';
+    expect(isPresetActive(myPrsQuery, 'my-prs')).toBe(true);
+  });
+
+  it('correctly toggles ready-to-merge multi-token preset', () => {
+    const initial = 'is:pr is:open';
+    const active = togglePreset(initial, 'ready-to-merge');
+    expect(isPresetActive(active, 'ready-to-merge')).toBe(true);
+    expect(active).toContain('review:approved');
+    expect(active).toContain('status:success');
+    expect(active).toContain('-is:draft');
+
+    const toggledOff = togglePreset(active, 'ready-to-merge');
+    expect(isPresetActive(toggledOff, 'ready-to-merge')).toBe(false);
+    expect(toggledOff).not.toContain('review:approved');
+    expect(toggledOff).not.toContain('status:success');
+  });
+
+  it('correctly toggles exclude-bots negative qualifiers', () => {
+    const initial = 'is:pr is:open';
+    const active = togglePreset(initial, 'no-bots');
+    expect(isPresetActive(active, 'no-bots')).toBe(true);
+    expect(active).toContain('-author:app/dependabot');
+
+    const toggledOff = togglePreset(active, 'no-bots');
+    expect(isPresetActive(toggledOff, 'no-bots')).toBe(false);
+    expect(toggledOff).not.toContain('-author:app/dependabot');
+  });
 });

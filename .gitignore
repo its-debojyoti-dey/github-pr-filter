@@ -3,3 +3,8 @@ dist/
 .DS_Store
 *.log
 *.zip
+
+# Environment & Secrets
+.env
+.env.local
+.env.*

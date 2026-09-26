@@ -77,8 +77,17 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
         popover.appendChild(header);
       } else if (item.token) {
         const row = document.createElement('div');
-        row.className = 'gh-pr-popover-item';
-        const isActive = currentQuery.includes(item.token);
+        const parsedItem = parseQuery(item.token)[0];
+        const parsedRemove = item.removeToken ? parseQuery(item.removeToken)[0] : null;
+
+        const currentTokens = parseQuery(currentQuery);
+        const isActive = parsedItem
+          ? currentTokens.some((t) => {
+              const tQ = t.qualifier === 'state' ? 'is' : t.qualifier;
+              const itemQ = parsedItem.qualifier === 'state' ? 'is' : parsedItem.qualifier;
+              return tQ === itemQ && t.value === parsedItem.value && t.negated === parsedItem.negated;
+            })
+          : false;
 
         row.innerHTML = `
           <span>${item.label}</span>
@@ -89,15 +98,30 @@ export function renderFilterBar(options: FilterBarOptions): HTMLElement {
           e.stopPropagation();
           currentQuery = input.value;
           const tokens = parseQuery(currentQuery);
-          const activeNow = currentQuery.includes(item.token);
-          if (activeNow) {
+          const activeNow = parsedItem
+            ? tokens.some((t) => {
+                const tQ = t.qualifier === 'state' ? 'is' : t.qualifier;
+                const itemQ = parsedItem.qualifier === 'state' ? 'is' : parsedItem.qualifier;
+                return tQ === itemQ && t.value === parsedItem.value && t.negated === parsedItem.negated;
+              })
+            : false;
+
+          if (activeNow && parsedItem) {
             // Remove token
-            const filtered = tokens.filter((t) => t.raw !== item.token);
+            const filtered = tokens.filter((t) => {
+              const tQ = t.qualifier === 'state' ? 'is' : t.qualifier;
+              const itemQ = parsedItem.qualifier === 'state' ? 'is' : parsedItem.qualifier;
+              return !(tQ === itemQ && t.value === parsedItem.value && t.negated === parsedItem.negated);
+            });
             currentQuery = serializeQuery(filtered);
-          } else {
+          } else if (parsedItem) {
             // Remove conflicting token if specified
-            let updated = item.removeToken
-              ? tokens.filter((t) => t.raw !== item.removeToken)
+            let updated = parsedRemove
+              ? tokens.filter((t) => {
+                  const tQ = t.qualifier === 'state' ? 'is' : t.qualifier;
+                  const remQ = parsedRemove.qualifier === 'state' ? 'is' : parsedRemove.qualifier;
+                  return !(tQ === remQ && t.value === parsedRemove.value && t.negated === parsedRemove.negated);
+                })
               : tokens;
             const newTokens = parseQuery(item.token);
             updated = [...updated, ...newTokens];

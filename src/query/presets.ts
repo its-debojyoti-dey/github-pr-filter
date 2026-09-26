@@ -49,7 +49,9 @@ export const PRESETS: PresetDefinition[] = [
 ];
 
 function tokenMatches(a: QueryToken, b: QueryToken): boolean {
-  if (a.qualifier !== b.qualifier) return false;
+  const qA = a.qualifier === 'state' ? 'is' : a.qualifier;
+  const qB = b.qualifier === 'state' ? 'is' : b.qualifier;
+  if (qA !== qB) return false;
   if (a.value !== b.value) return false;
   if (a.negated !== b.negated) return false;
   return true;
