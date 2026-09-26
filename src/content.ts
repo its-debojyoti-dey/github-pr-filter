@@ -49,7 +49,18 @@ function applyQuery(query: string) {
   searchParams.set('q', query);
   const targetUrl = `${basePath}?${searchParams.toString()}`;
 
-  // Find native GitHub form if available (classic UI) and submit via Turbo
+  // 1. Use GitHub Turbo SPA navigation if available for seamless transition without page reload
+  const turbo = (window as any).Turbo;
+  if (turbo && typeof turbo.visit === 'function') {
+    try {
+      turbo.visit(targetUrl, { action: 'advance' });
+      return;
+    } catch (e) {
+      console.warn('[GitHub PR Filter] Turbo.visit failed, falling back:', e);
+    }
+  }
+
+  // 2. Find native GitHub form if available (classic UI) and submit via Turbo
   const nativeInput = document.querySelector<HTMLInputElement>(
     'input#js-issues-search, form.subnav-search input[name="q"]'
   );
@@ -64,7 +75,7 @@ function applyQuery(query: string) {
     }
   }
 
-  // For React dashboard or fallback: navigate directly
+  // 3. Fallback: navigate directly
   window.location.href = targetUrl;
 }
 
