@@ -74,6 +74,12 @@ export function isPresetActive(
   );
 }
 
+function isBaselineToken(token: QueryToken): boolean {
+  const q = token.qualifier === 'state' ? 'is' : token.qualifier;
+  if (!q) return false;
+  return q === 'is' && (token.value === 'pr' || token.value === 'open');
+}
+
 export function togglePreset(
   queryStr: string,
   presetOrId: string | PresetDefinition,
@@ -88,10 +94,24 @@ export function togglePreset(
   const active = isPresetActive(queryStr, preset, allPresets);
 
   if (active) {
-    // Remove preset tokens
+    // Only remove distinguishing non-baseline tokens so other presets & state are preserved
+    const specificTokens = preset.tokens.filter((p) => !isBaselineToken(p));
+    const tokensToRemove = specificTokens.length > 0 ? specificTokens : preset.tokens;
+
     const filtered = currentTokens.filter(
-      (c) => !preset.tokens.some((p) => tokenMatches(c, p))
+      (c) => !tokensToRemove.some((p) => tokenMatches(c, p))
     );
+
+    // Ensure baseline is:open is preserved if neither is:open nor is:closed is present
+    const hasState = filtered.some((t) => {
+      const q = t.qualifier === 'state' ? 'is' : t.qualifier;
+      return q === 'is' && (t.value === 'open' || t.value === 'closed');
+    });
+
+    if (!hasState) {
+      filtered.push({ raw: 'is:open', qualifier: 'is', value: 'open', negated: false });
+    }
+
     return serializeQuery(filtered);
   } else {
     // Handle mutual exclusions

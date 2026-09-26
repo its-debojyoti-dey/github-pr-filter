@@ -95,4 +95,40 @@ describe('Presets and Toggling', () => {
     expect(isPresetActive(toggledOff, 'no-bots')).toBe(false);
     expect(toggledOff).not.toContain('-author:app/dependabot');
   });
+
+  it('preserves other active presets when deselecting one preset', () => {
+    // 1. Activate Needs My Review
+    let query = togglePreset('is:pr is:open', 'needs-my-review');
+    expect(isPresetActive(query, 'needs-my-review')).toBe(true);
+
+    // 2. Activate Exclude Bots alongside it
+    query = togglePreset(query, 'no-bots');
+    expect(isPresetActive(query, 'needs-my-review')).toBe(true);
+    expect(isPresetActive(query, 'no-bots')).toBe(true);
+
+    // 3. Deselect Needs My Review
+    query = togglePreset(query, 'needs-my-review');
+    // Needs My Review is now off, but Exclude Bots MUST remain active!
+    expect(isPresetActive(query, 'needs-my-review')).toBe(false);
+    expect(isPresetActive(query, 'no-bots')).toBe(true);
+    expect(query).toContain('is:open');
+    expect(query).toContain('-author:app/dependabot');
+    expect(query).not.toContain('review-requested:@me');
+  });
+
+  it('preserves Drafts preset when deselecting Needs My Review', () => {
+    let query = 'is:pr is:open';
+    query = togglePreset(query, 'needs-my-review');
+    query = togglePreset(query, 'drafts');
+
+    expect(isPresetActive(query, 'needs-my-review')).toBe(true);
+    expect(isPresetActive(query, 'drafts')).toBe(true);
+
+    // Deselect Needs My Review
+    query = togglePreset(query, 'needs-my-review');
+    expect(isPresetActive(query, 'needs-my-review')).toBe(false);
+    expect(isPresetActive(query, 'drafts')).toBe(true);
+    expect(query).toContain('draft:true');
+    expect(query).toContain('is:open');
+  });
 });
