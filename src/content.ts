@@ -170,7 +170,6 @@ function mount() {
 
   filterBar.setAttribute(MOUNTED_ATTR, 'true');
   parentContainer.insertBefore(filterBar, target);
-  console.log('[GitHub PR Filter] Filter bar mounted successfully.');
 }
 
 function onUrlNavigation() {
