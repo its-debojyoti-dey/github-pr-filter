@@ -20,40 +20,34 @@ Native PR filter bar with 1-click preset chips, visual query builder, and zero-t
 
 ### Detailed Description
 ```text
-Supercharge your GitHub Pull Request workflow with an interactive, native-feeling filter bar and quick preset chips directly inside GitHub repository PR lists.
+Filter GitHub Pull Requests faster with quick preset chips and a visual criteria builder directly above the PR list.
 
-Tired of manually typing search queries like `is:open review-requested:@me` or `-author:app/dependabot` every day? GitHub PR Filter brings native-styled 1-click filter pills, a visual criteria builder, and custom preset management right above the pull request table.
+If you regularly filter PRs by reviewer, status, or bot author, typing out `review-requested:@me is:open` or `-author:app/dependabot` gets old quickly. This extension adds clickable filter chips and dropdown controls right into GitHub's pull request index.
 
-✨ KEY FEATURES:
+Key features:
 
-🚀 1-Click Preset Filter Chips
+Preset filter chips
+Clickable chips for common searches:
 • Needs My Review (`review-requested:@me is:open`)
 • Created by Me (`author:@me is:open`)
 • Ready to Merge (`is:open -is:draft review:approved status:success`)
 • Exclude Bots (`-author:app/dependabot -author:app/renovate -author:app/github-actions`)
 • Drafts (`is:open draft:true`)
 
-🎨 Seamless GitHub Primer Design
-• Automatically harmonizes with GitHub Light, Dark Default, and Dark Dimmed themes.
-• Feels like an official, native GitHub feature without cluttering your interface.
+Visual criteria builder
+A dropdown menu to toggle states (open, closed), review approvals, and CI check results without manually typing GitHub search qualifiers. Query tokens sync live with GitHub's search bar.
 
-🛠️ Visual Criteria Builder Popover
-• Toggle PR states (`open`, `closed`), review statuses (`approved`, `changes requested`), and CI check outcomes with clean visual toggles.
-• Real-time token synchronization with GitHub's query input.
+Custom presets
+Save your own frequent query combinations as custom chips. Presets are stored locally in your browser.
 
-⚡ Instant Turbo / PJAX Integration
-• Works flawlessly with GitHub's client-side Turbo navigation and repository pagination.
-• Shareable URLs—all filters reflect directly in your browser's address bar.
+Native styling and Turbo support
+Designed with GitHub Primer components to match GitHub Light, Dark Default, and Dark Dimmed themes. Works with GitHub's client-side Turbo navigation, pagination, and shareable URLs.
 
-💾 Custom Presets
-• Save your own frequent query combinations into named custom chips with one click.
-• Managed entirely within your local browser storage.
-
-🔒 100% PRIVATE & CLIENT-SIDE:
-• Zero remote tracking or external telemetry.
-• No GitHub Personal Access Tokens or authentication required.
-• No data ever leaves your device.
-• Open-source codebase: https://github.com/its-debojyoti-dey/github-pr-filter
+Privacy and permissions:
+• 100% client-side. No telemetry, analytics, or external requests.
+• Requires no GitHub personal access tokens or login credentials.
+• Only requests storage (to save your custom presets) and access to github.com to display the UI.
+• Source code: https://github.com/its-debojyoti-dey/github-pr-filter
 ```
 
 ### Category
