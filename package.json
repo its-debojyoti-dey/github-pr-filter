@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "test": "vitest run",
-    "package": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath github-pr-filter-v1.0.0.zip -Force"
+    "package": "npm run build && powershell -Command \"if (!(Test-Path release)) { New-Item -ItemType Directory release }; Compress-Archive -Path dist/* -DestinationPath release/github-pr-filter-v1.0.1.zip -Force\""
   },
   "devDependencies": {
     "@types/chrome": "^0.0.306",
